@@ -9,18 +9,26 @@
         android:id="@+id/take_picture_imgPreview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
-        android:layout_above="@+id/take_picture_btnCapture" />
+        android:visibility="visible"
+        android:layout_above="@+id/take_picture_btnStore" />
 
     <Button
-        android:id="@+id/take_picture_btnCapture"
+        android:id="@+id/take_picture_btnDiscard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="45dp"
+        android:text="Discard" />
+
+    <Button
+        android:id="@+id/take_picture_btnStore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_marginBottom="14dp"
-        android:layout_marginLeft="41dp"
+        android:layout_marginLeft="57dp"
         android:onClick="onClick"
-        android:text="Capture" />
+        android:text="Store" />
 
 </RelativeLayout>

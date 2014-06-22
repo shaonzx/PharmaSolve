@@ -24,22 +24,23 @@ public class TakePicture extends Activity {
 	
     // Activity request codes
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
-    private static final int CAMERA_CAPTURE_VIDEO_REQUEST_CODE = 200;
+    //private static final int CAMERA_CAPTURE_VIDEO_REQUEST_CODE = 200;
     public static final int MEDIA_TYPE_IMAGE = 1;
-    public static final int MEDIA_TYPE_VIDEO = 2;
+   // public static final int MEDIA_TYPE_VIDEO = 2;
     
     // directory name to store captured images
-    private static final String IMAGE_DIRECTORY_NAME = "Pharmasolve Images";
+    private static final String IMAGE_DIRECTORY_NAME = ".pharmasolve_images";
     
     private Uri fileUri; // file url to store image/video
     
     private ImageView imgPreview;
-    private Button btnCapture;
+    private Button btnStore, btnDiscard;
     
     private void InitializeComponant()
     {
     	imgPreview = (ImageView) findViewById(R.id.take_picture_imgPreview);
-    	btnCapture = (Button) findViewById(R.id.take_picture_btnCapture);
+    	btnStore = (Button) findViewById(R.id.take_picture_btnStore);
+    	btnDiscard = (Button) findViewById(R.id.take_picture_btnDiscard);
     }
 
 	@Override
@@ -49,12 +50,14 @@ public class TakePicture extends Activity {
 		setContentView(R.layout.take_picture);
 		InitializeComponant();
 		
-		btnCapture.setOnClickListener(new OnClickListener() {
+		CaptureImage();
+		
+		btnStore.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				CaptureImage();
+				//CaptureImage();
 			}
 		});
 	}
@@ -93,9 +96,7 @@ public class TakePicture extends Activity {
 	    if (type == MEDIA_TYPE_IMAGE) {
 	        mediaFile = new File(mediaStorageDir.getPath() + File.separator
 	                + "IMG_" + timeStamp + ".jpg");
-	    } else if (type == MEDIA_TYPE_VIDEO) {
-	        mediaFile = new File(mediaStorageDir.getPath() + File.separator
-	                + "VID_" + timeStamp + ".mp4");
+	    
 	    } else {
 	        return null;
 	    }
