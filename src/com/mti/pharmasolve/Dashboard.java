@@ -21,6 +21,7 @@ public class Dashboard extends Activity {
 	
 	Button btnOrder;
 	Button btnQueueOrder;
+	Button btnTakePicture;
 	
 	double latitude = 0.0, longitude = 0.0;
 	
@@ -31,6 +32,7 @@ public class Dashboard extends Activity {
 	
 	private void InitializeComponant()
 	{
+		btnTakePicture = (Button) findViewById(R.id.dashboard_btnTakePicture);
 		btnOrder = (Button) findViewById(R.id.dashboard_btnOrder);
 		btnQueueOrder = (Button) findViewById(R.id.dashboard_btnQueuedOrder);
 	}
@@ -116,6 +118,18 @@ public class Dashboard extends Activity {
 			ShowSettingsAlert();
 		}
 		*/
+		
+		btnTakePicture.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				
+				Intent startCam = new Intent(Dashboard.this, TakePicture.class);
+				startActivity(startCam);				
+			}
+		});
+		
 		btnOrder.setOnClickListener(new OnClickListener() {
 			
 			@Override
