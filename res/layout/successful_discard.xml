@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white" >
+
+    <ImageView
+        android:id="@+id/successful_discard_imgBin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="67dp"
+        android:src="@drawable/bin" />
+
+    <TextView
+        android:id="@+id/successful_discard_txtSuccess"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/successful_discard_imgBin"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:text="Order has been discarded!"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@android:color/black"
+        android:singleLine="true" />
+
+    <Button
+        android:id="@+id/successful_discard_btnDashboard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/successful_discard_txtSuccess"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="72dp"
+        android:text="Go to Dashboard"
+        android:textSize="20dp"
+        android:textColor="@android:color/black"
+         />
+
+</RelativeLayout>

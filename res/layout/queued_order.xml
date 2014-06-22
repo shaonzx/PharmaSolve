@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    
+    <ScrollView
+        android:id="@+id/queued_order_scrollQueuedOrder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" >
+
+        <LinearLayout
+            android:id="@+id/queued_order_mylinear"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:orientation="vertical" >
+
+            <View                
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/black" />
+            
+        </LinearLayout>
+        
+    </ScrollView>
+
+    <Button
+        android:id="@+id/queued_order_btnDiscardOrder"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="Discard Order"
+        android:textSize="20dp"
+        android:layout_marginRight="10dp" />
+
+    <Button
+        android:id="@+id/queued_order_btnPlaceOrder"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/queued_order_btnDiscardOrder"
+        android:text="Place Order"
+        android:textSize="20dp" />
+    
+</RelativeLayout>
