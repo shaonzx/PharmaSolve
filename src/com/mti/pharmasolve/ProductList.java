@@ -3,8 +3,11 @@ package com.mti.pharmasolve;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -18,27 +21,34 @@ import org.json.JSONObject;
 import com.mti.pharmasolve.adapters.DatabaseHelper;
 import com.mti.pharmasolve.model.Customers_DB;
 import com.mti.pharmasolve.model.Products_DB;
+import com.mti.pharmasolve.session.SessionManager;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification.Builder;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.widget.SlidingPaneLayout.LayoutParams;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class ProductList extends Activity {
+	
+	static int ORDER_ID;
 
 	LinearLayout ll;
 	LinearLayout[] llx;
@@ -47,11 +57,14 @@ public class ProductList extends Activity {
 	CheckBox[] cx;
 	Button btnQueueOrder;
 	Button btnPlaceOrder;
-	EditText edtCustomerId;
+	Spinner spnrCustomerId;
+	
+	static String USER_ID;
 
 	private double grandTotal;
 
 	List<Products> productList;
+	List<String> customerIdList;
 	private ProgressDialog aProgressDialog;
 	private AlertDialog dlgAlert;
 	private static final String PRODUCTS_URL = "http://pharmasolve.apiary-mock.com/Products";
@@ -59,7 +72,7 @@ public class ProductList extends Activity {
 	DatabaseHelper db;
 
 	private void InitializeComponant() {
-		edtCustomerId = (EditText) findViewById(R.id.product_list_edtCustomerId);
+		spnrCustomerId = (Spinner) findViewById(R.id.product_list_spnrCustomerId);
 		llx = new LinearLayout[productList.size()];
 		tx = new TextView[productList.size()];
 		ex = new EditText[productList.size()];
@@ -68,10 +81,15 @@ public class ProductList extends Activity {
 	}
 
 	private void InitializeBefore() {
+		
+		SessionManager session = new SessionManager(getApplicationContext());
+		USER_ID = session.GetUserIdFromSharedPreferences();		
+		
 		db = new DatabaseHelper(getApplicationContext());
 		btnPlaceOrder = (Button) findViewById(R.id.product_list_btnPlaceOrder);
 		btnQueueOrder = (Button) findViewById(R.id.product_list_btnQueue);
 
+		customerIdList = new ArrayList<String>();
 		productList = new ArrayList<Products>();
 		ll = (LinearLayout) findViewById(R.id.mylinear);
 	}
@@ -80,7 +98,7 @@ public class ProductList extends Activity {
 		android.app.AlertDialog.Builder dlgAlert = new AlertDialog.Builder(
 				ProductList.this);
 
-		dlgAlert.setMessage("Please enter customer Id!");
+		dlgAlert.setMessage("Please Select Customer Id!");
 		dlgAlert.setTitle("Pharma Solve");
 		dlgAlert.setIcon(R.drawable.fail);
 		dlgAlert.setPositiveButton("OK", null);
@@ -99,8 +117,48 @@ public class ProductList extends Activity {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				Toast.makeText(ProductList.this, "Will Place Order Immediatly",
-						Toast.LENGTH_SHORT).show();
+				
+				if (spnrCustomerId.getSelectedItem().toString().equals("<Select>")) {
+					ShowEmptyCustomerIdAlert();
+				} else {
+				
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+				//Date d = new Date();
+				//String strDate = formater.format(d);
+				String dateTime = formatter.format(new Date());
+				
+				String orderNumber = GenerateOrderNumber();
+				
+				
+				
+				//System.out.println("Order Number: " + orderNumber);
+				
+				new OrderMaster().execute(dateTime, spnrCustomerId.getSelectedItem().toString(), orderNumber, USER_ID);
+				// 
+				//System.out.println("Order Number: " + orderNumber);
+				
+				}
+				
+			}
+
+			private String GenerateOrderNumber() {
+				// TODO Auto-generated method stub
+				
+				
+				String orderNumber = null;
+				
+				try {
+					orderNumber = new OrderNumber().execute().get();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ExecutionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
+				return orderNumber;
 			}
 		});
 
@@ -109,11 +167,10 @@ public class ProductList extends Activity {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				if (edtCustomerId.getText().toString().equals("")) {
+				if (spnrCustomerId.getSelectedItem().toString().equals("<Select>")) {
 					ShowEmptyCustomerIdAlert();
 				} else {
-					Customers_DB aCustomers_DB = new Customers_DB(edtCustomerId
-							.getText().toString());
+					Customers_DB aCustomers_DB = new Customers_DB(spnrCustomerId.getSelectedItem().toString());
 
 					// Insert Into database
 					long something = db.InsertCustomer(aCustomers_DB);
@@ -129,11 +186,14 @@ public class ProductList extends Activity {
 //								System.out.println("Pro: "+ tx[i].getText().toString()+ "Quantity: "+ Integer.parseInt(ex[i].getText()
 //												.toString()));
 								
-								String customerId = edtCustomerId.getText().toString();
+								String customerId = spnrCustomerId.getSelectedItem().toString();
 								String productName = tx[i].getText().toString();
 								int quantity = Integer.parseInt(ex[i].getText().toString());
+								Products myProduct = productList.get(i);
+								double salesPrice = myProduct.GetSalesPrice();
+								String productId = myProduct.GetProductCode();
 								
-								Products_DB aProducts_DB = new Products_DB(customerId, productName, quantity);
+								Products_DB aProducts_DB = new Products_DB(customerId, productName, quantity, salesPrice, productId);
 								
 								long someProducts = db.InsertProduct(aProducts_DB);
 								//System.out.println("Some Products: " + someProducts);
@@ -144,15 +204,24 @@ public class ProductList extends Activity {
 					
 					Intent success = new Intent(ProductList.this, SuccessfulQueue.class);
 					startActivity(success);
+					finish();
 
 				}
 			}
 		});
 
-		new PopulateProductList().execute();
+		//new PopulateProductList().execute();
+		customerIdList.add("<Select>");
+		new CustomerListPopulation().execute();
 	}
 
 	private void PopulateView() {
+		
+		ArrayAdapter<String> customerAdapter = new ArrayAdapter<String>(ProductList.this, android.R.layout.simple_list_item_1, customerIdList);
+		customerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+		spnrCustomerId.setAdapter(customerAdapter);
+		
+		
 		int size = productList.size();
 
 		boolean setcolor = true;
@@ -197,6 +266,7 @@ public class ProductList extends Activity {
 
 			cx[K].setOnClickListener(new OnClickListener() {
 
+				@TargetApi(Build.VERSION_CODES.GINGERBREAD)
 				@Override
 				public void onClick(View v) {
 					// TODO Auto-generated method stub
@@ -272,12 +342,67 @@ public class ProductList extends Activity {
 			break;
 		}
 	}
+	
+	class CustomerListPopulation extends AsyncTask<Void, Void, Void>{
+		
+		JSONObject aJSONObject;
+		JSONArray aJSONArray;
+		
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+			super.onPreExecute();
+			aProgressDialog = new ProgressDialog(ProductList.this);
+			aProgressDialog.setMessage("Loading Customer List...");
+			aProgressDialog.setIndeterminate(true);
+			// aProgressDialog.setCancelable(false);
+			aProgressDialog.setCanceledOnTouchOutside(true);
+			aProgressDialog.show();
+		}
 
+		@Override
+		protected Void doInBackground(Void... params) {
+			// TODO Auto-generated method stub
+			
+			RestAPI api = new RestAPI();
+			
+			try {
+				aJSONObject = api.GetCustomerIdList();
+				aJSONArray = aJSONObject.getJSONArray("Value");
+				int len = aJSONArray.length();
+								
+				for(int I=0; I<len; I++)
+				{
+					JSONObject mJSONObject = null;
+					mJSONObject = aJSONArray.getJSONObject(I);
+					customerIdList.add(mJSONObject.getString("customerId"));					
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			// TODO Auto-generated method stub
+			super.onPostExecute(result);
+			aProgressDialog.dismiss();
+			
+			new PopulateProductList().execute();
+		}
+		
+		
+		
+	}
+	
 	class PopulateProductList extends AsyncTask<Void, Void, Void> {
-
-		JSONArray aJsonArray;
-		int responselength;
-
+		
+		JSONObject productsObject;
+		
+		
 		@Override
 		protected void onPreExecute() {
 			// TODO Auto-generated method stub
@@ -293,40 +418,15 @@ public class ProductList extends Activity {
 		@Override
 		protected Void doInBackground(Void... params) {
 			// TODO Auto-generated method stub
-
-			HttpClient httpClient = new DefaultHttpClient();
-
-			/*************** Fetch Product Data *****************/
-
+			RestAPI api = new RestAPI();
+			
 			try {
-				HttpGet httpGet = new HttpGet(PRODUCTS_URL);
-				HttpResponse httpResponse = httpClient.execute(httpGet);
-				HttpEntity httpEntity = httpResponse.getEntity();
-
-				if (httpEntity != null) {
-
-					InputStream inputStream = httpEntity.getContent();
-
-					// Lecture du retour au format JSON
-					BufferedReader bufferedReader = new BufferedReader(
-							new InputStreamReader(inputStream));
-					StringBuilder stringBuilder = new StringBuilder();
-
-					String ligneLue = bufferedReader.readLine();
-					while (ligneLue != null) {
-						stringBuilder.append(ligneLue + " \n");
-						ligneLue = bufferedReader.readLine();
-					}
-					bufferedReader.close();
-					// Log.i("JSON", stringBuilder.toString());
-					aJsonArray = new JSONArray(stringBuilder.toString());
-
-				}
+				productsObject = api.GetProductDetails();
 			} catch (Exception e) {
-				// TODO: handle exception
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
+			
 			return null;
 		}
 
@@ -335,38 +435,228 @@ public class ProductList extends Activity {
 			// TODO Auto-generated method stub
 			super.onPostExecute(result);
 			aProgressDialog.dismiss();
-
-			aProgressDialog.dismiss();
-			responselength = aJsonArray.length();
-			for (int I = 0; I < responselength; I++) {
-				Products aProducts = null;
-				try {
-					JSONObject mJSONObject = aJsonArray.getJSONObject(I);
-					aProducts = new Products(mJSONObject.getString("name"),
-							mJSONObject.getString("code"),
-							Double.parseDouble(mJSONObject
-									.getString("salesprice")));
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				productList.add(aProducts);
+			
+			try {
+				JSONArray aJSONArray = productsObject.getJSONArray("Value");
+				int numberOfProducts = aJSONArray.length();
+				
+				for(int I=0; I<numberOfProducts; I++)
+				{
+					Products aProducts = null;
+					
+					JSONObject mJSONObject = aJSONArray.getJSONObject(I);
+					aProducts = new Products(mJSONObject.getString("productName"), mJSONObject.getString("productId"), Double.parseDouble(mJSONObject.getString("salesPrice")));
+					productList.add(aProducts);
+				}				
+				
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-
+			
+			//Toast.makeText(ProductList.this, "Products: " + productObject.toString(), Toast.LENGTH_LONG).show();
+			System.out.println("Products: " + productsObject.toString());
+			
 			InitializeComponant();
 			PopulateView();
+		}		
+	}
+	
+	class OrderMaster extends AsyncTask<String, Void, Void>{
+		JSONObject aJSONObject;
+
+				
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+			super.onPreExecute();
+			aProgressDialog = new ProgressDialog(ProductList.this);
+			aProgressDialog.setMessage("Placing Order...");
+			aProgressDialog.setIndeterminate(true);
+			// aProgressDialog.setCancelable(false);
+			aProgressDialog.setCanceledOnTouchOutside(true);
+			aProgressDialog.show();
 		}
 
-	}
+		@Override
+		protected Void doInBackground(String... params) {
+			// TODO Auto-generated method stub
+			
+			RestAPI api = new RestAPI();
+			try {
+				aJSONObject = api.InsertOrderMaster(params[0], params[1], params[2], params[3]);
+				ORDER_ID = aJSONObject.getInt("Value");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			return null;
+		}
 
-	@Override
-	protected void onPause() {
-		// TODO Auto-generated method stub
-		super.onPause();
-		db.close();
-		finish();
+		@Override
+		protected void onPostExecute(Void result) {
+			// TODO Auto-generated method stub
+			super.onPostExecute(result);
+			//aProgressDialog.dismiss();
+			System.out.println("Date: " + aJSONObject.toString());
+			new OrderDetails().execute();
+		}
+		
+		
 	}
 	
-	
+	class OrderDetails extends AsyncTask<Void, Void, Void> {
+		
+		JSONObject resultObject;
+		String insertQuery;
 
+		private String BuildQueryString()
+		{
+			String query = "INSERT INTO OrderDetails (ProdId, Qty, TotalSp, OrdId) VALUES ";
+			boolean nothing = true;
+			int size = productList.size();
+			
+			
+			for (int i = 0; i < size; i++) {				
+				
+				if (cx[i].isChecked()) {
+					if (!ex[i].getText().toString().equals("")) 
+					{
+						//Get Product Object
+						Products aProducts = productList.get(i);
+						
+						//get ProductId
+						String productId = aProducts.GetProductCode();
+						
+						//Get Quantity
+						int quantity = Integer.parseInt(ex[i].getText().toString());
+						
+						//Calculate total sales price
+						double totalSalesPrice = aProducts.GetSalesPrice() * quantity;
+						
+						if(nothing)
+						{
+							query = query + "('" + productId + "', '" + quantity + "', '"+ totalSalesPrice +"', '"+ ORDER_ID +"')";
+							nothing = false;
+						}
+						else
+						{
+							query = query + ", ('" + productId + "', '" + quantity + "', '"+ totalSalesPrice +"', '"+ ORDER_ID +"')";
+						}
+						
+					}
+				}
+
+			}
+			query = query + ";";
+			return query;
+		}
+		
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+			super.onPreExecute();
+			
+			insertQuery = BuildQueryString();			
+			
+		}
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			// TODO Auto-generated method stub
+			
+			RestAPI api = new RestAPI();
+			try {
+				resultObject = api.InsertOrderDetails(insertQuery);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}			
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			// TODO Auto-generated method stub
+			super.onPostExecute(result);
+			
+			aProgressDialog.dismiss();			
+			System.out.println("Result: " + resultObject.toString());
+			
+			
+			int rows = 0;
+			boolean success = false;
+			
+			try {
+				rows = resultObject.getInt("Value");
+				success = resultObject.getBoolean("Successful");
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			System.out.println("Query: " + insertQuery);
+			
+			if(success)
+			{
+				Toast.makeText(ProductList.this, rows + " product placed in order", Toast.LENGTH_LONG).show();
+				
+				Intent callDashboard = new Intent(ProductList.this, Dashboard.class);
+				startActivity(callDashboard);
+				finish();
+			}
+			else{
+				Toast.makeText(ProductList.this, "Something went wrong! Please try again...", Toast.LENGTH_LONG).show();
+			}
+		}
+		
+		
+	}
+	
+	class OrderNumber extends AsyncTask<Void, Void, String>{
+		
+		JSONObject aJSONObject;
+		String orderNumber;
+		
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+			super.onPreExecute();
+			aProgressDialog = new ProgressDialog(ProductList.this);
+			aProgressDialog.setMessage("Placing Order...");
+			aProgressDialog.setIndeterminate(true);
+			// aProgressDialog.setCancelable(false);
+			aProgressDialog.setCanceledOnTouchOutside(true);
+			aProgressDialog.show();
+		}
+
+		@Override
+		protected String doInBackground(Void... params) {
+			// TODO Auto-generated method stub
+			
+			RestAPI api = new RestAPI();
+			try {
+				aJSONObject = api.GenerateOrderNo(spnrCustomerId.getSelectedItem().toString());
+				orderNumber = aJSONObject.getString("Value");
+				
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			return orderNumber;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			// TODO Auto-generated method stub
+			super.onPostExecute(result);
+			
+			//aProgressDialog.dismiss();		
+			
+		}		
+		
+	}
+	
 }

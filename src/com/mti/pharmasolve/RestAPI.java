@@ -1,4 +1,4 @@
-/* JSON API for android appliation */
+/* JSON API for PharmaSolve appliation */
 package com.mti.pharmasolve;
 
 import java.io.IOException;
@@ -21,7 +21,7 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 
 public class RestAPI {
-    private final String urlString = "http://shaonzx.somee.com/Handler1.ashx";
+    private final String urlString = "http://shaonzx.somee.com/Handler.ashx";
 
     private static String convertStreamToUTF8String(InputStream stream) throws IOException {
 	    String result = "";
@@ -100,14 +100,12 @@ public class RestAPI {
 		return finalValue;
 	}
 
-    public JSONObject UserAuthentication(String userId,String passsword) throws Exception {
+    public JSONObject GetProductDetails() throws Exception {
         JSONObject result = null;
         JSONObject o = new JSONObject();
         JSONObject p = new JSONObject();
         o.put("interface","RestAPI");
-        o.put("method", "UserAuthentication");
-        p.put("userId",mapObject(userId));
-        p.put("passsword",mapObject(passsword));
+        o.put("method", "GetProductDetails");
         o.put("parameters", p);
         String s = o.toString();
         String r = load(s);
@@ -115,12 +113,88 @@ public class RestAPI {
         return result;
     }
 
-    public JSONObject GetProductDetails() throws Exception {
+    public JSONObject AuthenticateUser(String userId,String password) throws Exception {
         JSONObject result = null;
         JSONObject o = new JSONObject();
         JSONObject p = new JSONObject();
         o.put("interface","RestAPI");
-        o.put("method", "GetProductDetails");
+        o.put("method", "AuthenticateUser");
+        p.put("userId",mapObject(userId));
+        p.put("password",mapObject(password));
+        o.put("parameters", p);
+        String s = o.toString();
+        String r = load(s);
+        result = new JSONObject(r);
+        return result;
+    }
+
+    public JSONObject GetCustomerIdList() throws Exception {
+        JSONObject result = null;
+        JSONObject o = new JSONObject();
+        JSONObject p = new JSONObject();
+        o.put("interface","RestAPI");
+        o.put("method", "GetCustomerIdList");
+        o.put("parameters", p);
+        String s = o.toString();
+        String r = load(s);
+        result = new JSONObject(r);
+        return result;
+    }
+
+    public JSONObject InsertOrderMaster(String date,String customerId,String orderNum,String employeeId) throws Exception {
+        JSONObject result = null;
+        JSONObject o = new JSONObject();
+        JSONObject p = new JSONObject();
+        o.put("interface","RestAPI");
+        o.put("method", "InsertOrderMaster");
+        p.put("date",mapObject(date));
+        p.put("customerId",mapObject(customerId));
+        p.put("orderNum",mapObject(orderNum));
+        p.put("employeeId",mapObject(employeeId));
+        o.put("parameters", p);
+        String s = o.toString();
+        String r = load(s);
+        result = new JSONObject(r);
+        return result;
+    }
+
+    public JSONObject InsertOrderDetails(String insertQuery) throws Exception {
+        JSONObject result = null;
+        JSONObject o = new JSONObject();
+        JSONObject p = new JSONObject();
+        o.put("interface","RestAPI");
+        o.put("method", "InsertOrderDetails");
+        p.put("insertQuery",mapObject(insertQuery));
+        o.put("parameters", p);
+        String s = o.toString();
+        String r = load(s);
+        result = new JSONObject(r);
+        return result;
+    }
+
+    public JSONObject GenerateOrderNo(String customerId) throws Exception {
+        JSONObject result = null;
+        JSONObject o = new JSONObject();
+        JSONObject p = new JSONObject();
+        o.put("interface","RestAPI");
+        o.put("method", "GenerateOrderNo");
+        p.put("customerId",mapObject(customerId));
+        o.put("parameters", p);
+        String s = o.toString();
+        String r = load(s);
+        result = new JSONObject(r);
+        return result;
+    }
+
+    public JSONObject SetUserLocation(String userId,double latitude,double longitude) throws Exception {
+        JSONObject result = null;
+        JSONObject o = new JSONObject();
+        JSONObject p = new JSONObject();
+        o.put("interface","RestAPI");
+        o.put("method", "SetUserLocation");
+        p.put("userId",mapObject(userId));
+        p.put("latitude",mapObject(latitude));
+        p.put("longitude",mapObject(longitude));
         o.put("parameters", p);
         String s = o.toString();
         String r = load(s);

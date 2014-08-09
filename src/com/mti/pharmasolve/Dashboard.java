@@ -1,5 +1,10 @@
 package com.mti.pharmasolve;
 
+
+
+
+import com.mti.pharmasolve.session.SessionManager;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -19,22 +24,27 @@ import android.widget.Toast;
 
 public class Dashboard extends Activity {
 	
+	
+	
 	Button btnOrder;
 	Button btnQueueOrder;
 	Button btnTakePicture;
+	Button btnQueuedPicture;
+	Button btnLogOut;
 	
-	double latitude = 0.0, longitude = 0.0;
 	
-
 	LocationManager aLocationManager;
-	MyLocationListener aMyLocationListener;
+	
 	
 	
 	private void InitializeComponant()
-	{
+	{		
 		btnTakePicture = (Button) findViewById(R.id.dashboard_btnTakePicture);
 		btnOrder = (Button) findViewById(R.id.dashboard_btnOrder);
 		btnQueueOrder = (Button) findViewById(R.id.dashboard_btnQueuedOrder);
+		btnQueuedPicture = (Button) findViewById(R.id.dashboard_btnQueuedPicture);
+		btnLogOut = (Button) findViewById(R.id.dashboard_btnLogOut);
+		
 	}
 
 	public void ShowSettingsAlert(){
@@ -88,18 +98,6 @@ public class Dashboard extends Activity {
         }
 	}
 	
-	public boolean StartService() {
-		try {
-			//GetCordinates aGetCordinates = new GetCordinates();
-			LocationUpdates aLocationUpdates = new LocationUpdates();
-			aLocationUpdates.execute();
-			return true;
-		} catch (Exception error) {
-			return false;
-		}
-	}
-
-	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -107,17 +105,25 @@ public class Dashboard extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.dashboard);
 		InitializeComponant();
+
 		
-/*		if(CanGetLocation())
+		SessionManager session = new SessionManager(getApplicationContext());
+		
+		if(!session.IsServiceStarted())
 		{
-			if (!StartService()) {
-				Toast.makeText(Dashboard.this, "Service can not be Started at this moment, check your Setting!",
-						Toast.LENGTH_SHORT).show();
+			if(CanGetLocation())
+			{
+				SessionManager mySession = new SessionManager(getApplicationContext());
+				mySession.FlagServiceStart();
+				
+				Intent aStartService = new Intent(getBaseContext(), LocationService.class);			
+				startService(aStartService);
+				
+			}else{
+				ShowSettingsAlert();
 			}
-		}else{
-			ShowSettingsAlert();
 		}
-		*/
+		
 		
 		btnTakePicture.setOnClickListener(new OnClickListener() {
 			
@@ -133,9 +139,10 @@ public class Dashboard extends Activity {
 		btnOrder.setOnClickListener(new OnClickListener() {
 			
 			@Override
-			public void onClick(View v) {
+			public void onClick(View v) { 
 				// TODO Auto-generated method stub
 				Intent startProductList = new Intent(Dashboard.this, ProductList.class);
+				
 				startActivity(startProductList);
 			}
 		});
@@ -149,85 +156,33 @@ public class Dashboard extends Activity {
 				startActivity(startQueuedList);
 			}
 		});
+		
+		btnQueuedPicture.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Intent startQueuedList = new Intent(Dashboard.this, QueuedImageList.class);
+				startActivity(startQueuedList);
+			}
+		});
+	
+		btnLogOut.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				stopService(new Intent(getBaseContext(), LocationService.class));
+				
+				SessionManager session = new SessionManager(getApplicationContext());
+				session.LogoutUser();
+				finish();				
+			}
+		});
+		
 	}	
 	
-	class LocationUpdates extends AsyncTask<Void, Void, Void> {
-
-		@Override
-		protected void onPreExecute() {
-			// TODO Auto-generated method stub
-			super.onPreExecute();
-			
-			aMyLocationListener = new MyLocationListener();
-            aLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            aLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 500, 0, aMyLocationListener);
-
-		}
-
-		@Override
-		protected Void doInBackground(Void... params) {
-			// TODO Auto-generated method stub
-			
-			while (latitude == 0.0) {
-				//System.out.println("Still Getting location...");
-            }
-
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			// TODO Auto-generated method stub
-			super.onPostExecute(result);
-			
-			
-			
-			//Dashboard.this.getMyLocationAddress();
-			
-//			progressDialog.dismiss();
-//            Toast.makeText(GeolocationUI.this, "LATITUDE :" + latitude + " LONGITUDE :" + longitude, 
-//           		Toast.LENGTH_SHORT).show();
-		}
-
-	}
 	
-	public class MyLocationListener implements LocationListener {
-
-		@Override
-		public void onLocationChanged(Location location) {
-
-			int lat = (int) location.getLatitude(); // * 1E6);
-			int log = (int) location.getLongitude(); // * 1E6);
-			int acc = (int) (location.getAccuracy());
-
-			String info = location.getProvider();
-			try {
-				latitude = location.getLatitude();
-				longitude = location.getLongitude();
-				//System.out.println("Latitude: " + latitude);
-				Toast.makeText(Dashboard.this, "Latitude: " + latitude + " and Longitude: " + longitude, Toast.LENGTH_SHORT).show();
-
-			} catch (Exception e) {
-				e.printStackTrace();				
-			}
-
-		}
-
-		@Override
-		public void onProviderDisabled(String provider) {
-			Log.i("OnProviderDisabled", "OnProviderDisabled");
-		}
-
-		@Override
-		public void onProviderEnabled(String provider) {
-			Log.i("onProviderEnabled", "onProviderEnabled");
-		}
-
-		@Override
-		public void onStatusChanged(String provider, int status, Bundle extras) {
-			Log.i("onStatusChanged", "onStatusChanged");
-
-		}
-
-	}
+	
+	
 }

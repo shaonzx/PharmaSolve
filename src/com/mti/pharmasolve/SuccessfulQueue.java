@@ -37,18 +37,11 @@ public class SuccessfulQueue extends Activity {
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
 				Intent dashboard = new Intent(SuccessfulQueue.this, Dashboard.class);
+				dashboard.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				dashboard.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				startActivity(dashboard);
 			}
 		});
 	}
-
-	@Override
-	protected void onPause() {
-		// TODO Auto-generated method stub
-		super.onPause();
-		finish();
-	}
-	
-	
 	
 }

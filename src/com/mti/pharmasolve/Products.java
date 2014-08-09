@@ -1,6 +1,6 @@
 package com.mti.pharmasolve;
 
-public class Products {
+public class Products {	
 	
 	private String productName;
 	private String productCode;
@@ -8,6 +8,7 @@ public class Products {
 	
 	public Products(String aProductName, String aProductCode, double aSalesPrice)
 	{
+		
 		productName = aProductName;
 		productCode = aProductCode;
 		salesPrice = aSalesPrice;

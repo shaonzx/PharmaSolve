@@ -3,11 +3,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
     
+    
+    <TextView
+        android:id="@+id/queued_order_txtCustomerId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Customer Id: "
+        android:textSize="20dp"
+        android:layout_alignParentTop="true" />
+    
     <ScrollView
         android:id="@+id/queued_order_scrollQueuedOrder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1" >
+        android:layout_weight="1"
+        android:layout_below="@+id/queued_order_txtCustomerId" >
 
         <LinearLayout
             android:id="@+id/queued_order_mylinear"

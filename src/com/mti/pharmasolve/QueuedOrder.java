@@ -1,12 +1,25 @@
 package com.mti.pharmasolve;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.mti.pharmasolve.ProductList.OrderDetails;
+import com.mti.pharmasolve.ProductList.OrderMaster;
+import com.mti.pharmasolve.ProductList.OrderNumber;
 import com.mti.pharmasolve.adapters.DatabaseHelper;
 import com.mti.pharmasolve.model.Products_DB;
+import com.mti.pharmasolve.session.SessionManager;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SlidingPaneLayout.LayoutParams;
 import android.text.InputType;
@@ -23,19 +36,35 @@ public class QueuedOrder extends Activity {
 
 	LinearLayout ll;
 	LinearLayout[] llx;
+	TextView txtCustomerId;
 	TextView[] tx;
 	EditText[] ex;
 	CheckBox[] cx;
+	
+	static String USER_ID;
+	static int ORDER_ID;
 
 	private String customerId;
 	DatabaseHelper db;
 	List<Products_DB> productsList;
+	
+	ProgressDialog aProgressDialog;
 
 	Button btnPlaceOrder;
 	Button btnDiscardorder;
+	
+	
+	//List<Products> productList;
 
 	private void InitializeComponant() {
+		
+		SessionManager aSession = new SessionManager(getApplicationContext());
+		USER_ID = aSession.GetUserIdFromSharedPreferences();
+		
 		customerId = getIntent().getExtras().getString("putId");
+		txtCustomerId = (TextView) findViewById(R.id.queued_order_txtCustomerId);
+		txtCustomerId.setText("Customer Id: " + customerId);
+		
 		db = new DatabaseHelper(getApplicationContext());
 		productsList = db.GetProducts(customerId);
 		
@@ -47,6 +76,8 @@ public class QueuedOrder extends Activity {
 		tx = new TextView[productsList.size()];
 		ex = new EditText[productsList.size()];
 		cx = new CheckBox[productsList.size()];
+		
+		
 	}
 
 	@Override
@@ -79,7 +110,35 @@ public class QueuedOrder extends Activity {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				Toast.makeText(QueuedOrder.this, "Order will be placed", Toast.LENGTH_SHORT).show();
+				
+				
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+				//Date d = new Date();
+				//String strDate = formater.format(d);
+				String dateTime = formatter.format(new Date());
+				
+				String orderNumber = GenerateOrderNumber();
+				
+				new OrderMaster().execute(dateTime, customerId, orderNumber, USER_ID);
+			}
+
+			private String GenerateOrderNumber() {
+				// TODO Auto-generated method stub
+				
+				String orderNumber = null;
+				
+				try {
+					orderNumber = new OrderNumber().execute().get();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ExecutionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
+				return orderNumber;
 			}
 		});
 
@@ -170,12 +229,201 @@ public class QueuedOrder extends Activity {
 		}
 	}
 
-	@Override
-	protected void onPause() {
-		// TODO Auto-generated method stub
-		super.onPause();
-		db.close();
-		finish();
+class OrderNumber extends AsyncTask<Void, Void, String>{
+		
+		JSONObject aJSONObject;
+		String orderNumber;
+		
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+			super.onPreExecute();
+			aProgressDialog = new ProgressDialog(QueuedOrder.this);
+			aProgressDialog.setMessage("Placing Order...");
+			aProgressDialog.setIndeterminate(true);
+			// aProgressDialog.setCancelable(false);
+			aProgressDialog.setCanceledOnTouchOutside(true);
+			aProgressDialog.show();
+		}
+
+		@Override
+		protected String doInBackground(Void... params) {
+			// TODO Auto-generated method stub
+			
+			RestAPI api = new RestAPI();
+			try {
+				aJSONObject = api.GenerateOrderNo(customerId);
+				orderNumber = aJSONObject.getString("Value");
+				
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			return orderNumber;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			// TODO Auto-generated method stub
+			super.onPostExecute(result);
+			
+			aProgressDialog.dismiss();		
+			
+		}		
+		
 	}
+	
+
+class OrderMaster extends AsyncTask<String, Void, Void>{
+	JSONObject aJSONObject;
+
+			
+	@Override
+	protected void onPreExecute() {
+		// TODO Auto-generated method stub
+		super.onPreExecute();
+		aProgressDialog = new ProgressDialog(QueuedOrder.this);
+		aProgressDialog.setMessage("Placing Order...");
+		aProgressDialog.setIndeterminate(true);
+		// aProgressDialog.setCancelable(false);
+		aProgressDialog.setCanceledOnTouchOutside(true);
+		aProgressDialog.show();
+	}
+
+	@Override
+	protected Void doInBackground(String... params) {
+		// TODO Auto-generated method stub
+		
+		RestAPI api = new RestAPI();
+		try {
+			aJSONObject = api.InsertOrderMaster(params[0], params[1], params[2], params[3]);
+			ORDER_ID = aJSONObject.getInt("Value");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+
+	@Override
+	protected void onPostExecute(Void result) {
+		// TODO Auto-generated method stub
+		super.onPostExecute(result);
+		//aProgressDialog.dismiss();
+		//System.out.println("Date: " + aJSONObject.toString());
+		new OrderDetails().execute();
+	}	
+}
+
+class OrderDetails extends AsyncTask<Void, Void, Void> {
+	
+	JSONObject resultObject;
+	String insertQuery;
+
+	private String BuildQueryString()
+	{
+		String query = "INSERT INTO OrderDetails (ProdId, Qty, TotalSp, OrdId) VALUES ";
+		boolean nothing = true;
+		int size = productsList.size();
+		
+		
+		for (int i = 0; i < size; i++) {				
+			
+			if (cx[i].isChecked()) {
+				if (!ex[i].getText().toString().equals("")) 
+				{
+					//Get Product Object
+					Products_DB aProducts = productsList.get(i);
+					
+					//get ProductId
+					String productId = aProducts.GetProductId();
+					
+					//Get Quantity
+					int quantity = Integer.parseInt(ex[i].getText().toString());
+					
+					//Calculate total sales price
+					double totalSalesPrice = aProducts.GetSalesPrice() * quantity;
+					
+					if(nothing)
+					{
+						query = query + "('" + productId + "', '" + quantity + "', '"+ totalSalesPrice +"', '"+ ORDER_ID +"')";
+						nothing = false;
+					}
+					else
+					{
+						query = query + ", ('" + productId + "', '" + quantity + "', '"+ totalSalesPrice +"', '"+ ORDER_ID +"')";
+					}
+					
+				}
+			}
+
+		}
+		query = query + ";";
+		return query;
+	}
+	
+	@Override
+	protected void onPreExecute() {
+		// TODO Auto-generated method stub
+		super.onPreExecute();
+		
+		insertQuery = BuildQueryString();			
+		
+	}
+
+	@Override
+	protected Void doInBackground(Void... params) {
+		// TODO Auto-generated method stub
+		
+		RestAPI api = new RestAPI();
+		try {
+			resultObject = api.InsertOrderDetails(insertQuery);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}			
+		return null;
+	}
+
+	@Override
+	protected void onPostExecute(Void result) {
+		// TODO Auto-generated method stub
+		super.onPostExecute(result);
+		
+		aProgressDialog.dismiss();			
+		System.out.println("Result: " + resultObject.toString());
+		
+		
+		int rows = 0;
+		boolean success = false;
+		
+		try {
+			rows = resultObject.getInt("Value");
+			success = resultObject.getBoolean("Successful");
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		System.out.println("Query: " + insertQuery);
+		
+		if(success)
+		{
+			Toast.makeText(QueuedOrder.this, rows + " product placed in order", Toast.LENGTH_LONG).show();
+			
+			Intent callDashboard = new Intent(QueuedOrder.this, Dashboard.class);			
+			startActivity(callDashboard);
+			finish();
+		}
+		else{
+			Toast.makeText(QueuedOrder.this, "Something went wrong! Please try again...", Toast.LENGTH_LONG).show();
+		}
+	}
+	
+	
+}
+
 
 }
