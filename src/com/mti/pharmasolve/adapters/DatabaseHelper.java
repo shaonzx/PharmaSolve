@@ -31,7 +31,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     //Columns for Images table...
     private static final String IMAGES_ID = "id";
     private static final String IMAGES_DOCTOR_ID = "doctorId";
-    private static final String IMAGES_CAPTURED_IMAGE = "capturedImage";
+    private static final String IMAGES_CAPTURED_IMAGE_LOCATION = "capturedImageLocation";
     private static final String IMAGES_TAKEN_AT = "takenAt";
     private static final String IMAGES_DESCRIPTION = "description";
     
@@ -66,7 +66,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String CREATE_TABLE_CAPTURE_IMAGES = "CREATE TABLE "
     		+ TABLE_CAPTURE_IMAGES + "(" + IMAGES_ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
     									 + IMAGES_DOCTOR_ID + 	" TEXT,"
-    									 + IMAGES_CAPTURED_IMAGE + " BLOB,"
+    									 + IMAGES_CAPTURED_IMAGE_LOCATION + " TEXT,"
     									 + IMAGES_DESCRIPTION + " TEXT,"
     									 + IMAGES_TAKEN_AT + " DATETIME"
     								 +")";
@@ -132,7 +132,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	    
 	    ContentValues values = new ContentValues();
 	    values.put(IMAGES_DOCTOR_ID, anImages_DB.GetDoctorId());
-	    values.put(IMAGES_CAPTURED_IMAGE, anImages_DB.GetCapturedImage());
+	    values.put(IMAGES_CAPTURED_IMAGE_LOCATION, anImages_DB.GetCapturedImage());
 	    values.put(IMAGES_DESCRIPTION, anImages_DB.GetDescription());
 	    values.put(IMAGES_TAKEN_AT, anImages_DB.GetDateTime());
 		
@@ -157,7 +157,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	            
 	            anImages_DB.SetId(c.getInt(c.getColumnIndex(IMAGES_ID)));
 	            anImages_DB.SetDoctorId(c.getString(c.getColumnIndex(IMAGES_DOCTOR_ID)));	            
-	            anImages_DB.SetCapturedImage(c.getString(c.getColumnIndex(IMAGES_CAPTURED_IMAGE)));
+	            anImages_DB.SetCapturedImage(c.getString(c.getColumnIndex(IMAGES_CAPTURED_IMAGE_LOCATION)));
 	            anImages_DB.SetDescription(c.getString(c.getColumnIndex(IMAGES_DESCRIPTION)));
 	            anImages_DB.SetDateTime(c.getString(c.getColumnIndex(IMAGES_TAKEN_AT)));	            
 	            
@@ -169,7 +169,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	    return imagesList;
 	}
 	
-	
+	public int DeleteImage(int id)
+	{
+		SQLiteDatabase db = this.getWritableDatabase();
+		int rows = db.delete(TABLE_CAPTURE_IMAGES, IMAGES_ID + " = " + id, null);
+		
+		return rows;
+	}
 	
 	/*
 	 * getting all Products from Products Table

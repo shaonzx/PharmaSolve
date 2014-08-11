@@ -2,60 +2,60 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-    
-        <ImageView
+
+    <ImageView
         android:id="@+id/queued_image_imgPreview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/queued_image_txtDoctorId"
-        android:visibility="visible"
-         />
+        android:visibility="visible" />
 
-          <Button
-              android:id="@+id/queued_image_btnUpload"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_alignParentBottom="true"
-              android:layout_alignParentLeft="true"
-              android:layout_marginLeft="70dp"
-              android:text="Upload" />
+    <Button
+        android:id="@+id/queued_image_btnUpload"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="70dp"
+        android:text="Upload" />
 
-          <Button
-              android:id="@+id/queued_image_btnDiscard"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_alignParentBottom="true"
-              android:layout_marginLeft="48dp"
-              android:layout_toRightOf="@+id/queued_image_btnUpload"
-              android:text="Discard" />
+    <Button
+        android:id="@+id/queued_image_btnDiscard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="48dp"
+        android:layout_toRightOf="@+id/queued_image_btnUpload"
+        android:text="Discard" />
 
-          <TextView
-              android:id="@+id/queued_image_txtDescription"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_alignTop="@+id/queued_image_txtTakenAt"
-              android:layout_marginTop="20dp"
-              android:layout_toLeftOf="@+id/queued_image_btnDiscard"
-              android:text="Description: "
-              android:textSize="20dp" />
+    <TextView
+        android:id="@+id/queued_image_txtDoctorId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/queued_image_txtTakenAt"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="5dp"
+        android:text="Doctor Id: "
+        android:textSize="20dp" />
 
-          <TextView
-              android:id="@+id/queued_image_txtTakenAt"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_above="@+id/queued_image_btnUpload"
-              android:layout_alignLeft="@+id/queued_image_txtDescription"
-              android:layout_marginBottom="102dp"
-              android:text="Taken At: "
-              android:textSize="20dp" />
+    <TextView
+        android:id="@+id/queued_image_txtTakenAt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/queued_image_txtDescription"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="5dp"
+        android:text="Taken At: "
+        android:textSize="20dp" />
 
-          <TextView
-              android:id="@+id/queued_image_txtDoctorId"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_above="@+id/queued_image_txtDescription"
-              android:layout_alignRight="@+id/queued_image_txtTakenAt"
-              android:text="Doctor Id: "
-              android:textSize="20dp" />
+    <TextView
+        android:id="@+id/queued_image_txtDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/queued_image_btnUpload"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="54dp"
+        android:text="Description: "
+        android:textSize="20dp" />
 
 </RelativeLayout>

@@ -31,6 +31,7 @@ public class QueuedImageList extends Activity {
 		displayContent = new ArrayList<String>();
 		imagesList = db.GetAllImages();
 		//System.out.println("Hell: " + imagesList.size());
+		db.close();
 	}
 
 	@Override
@@ -63,7 +64,10 @@ public class QueuedImageList extends Activity {
 				img.putExtra("getImageLocation", myImage.GetCapturedImage());
 				img.putExtra("getDescription", myImage.GetDescription());
 				img.putExtra("getDateTaken", myImage.GetDateTime());
-				startActivity(img);				
+				img.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				img.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(img);	
+				finish();
 			}		
 			
 		});

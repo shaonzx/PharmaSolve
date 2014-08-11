@@ -1094,7 +1094,7 @@ containing a value of this type.
         public static final int action_menu_divider=0x7f050016;
         public static final int action_menu_presenter=0x7f050017;
         public static final int action_mode_close_button=0x7f050024;
-        public static final int action_settings=0x7f050061;
+        public static final int action_settings=0x7f050065;
         public static final int activity_chooser_view_content=0x7f050025;
         public static final int always=0x7f05000b;
         public static final int beginning=0x7f050011;
@@ -1140,9 +1140,9 @@ containing a value of this type.
         public static final int queued_image_btnUpload=0x7f05004d;
         public static final int queued_image_imgPreview=0x7f05004b;
         public static final int queued_image_list_listQueuedImage=0x7f050051;
-        public static final int queued_image_txtDescription=0x7f05004f;
+        public static final int queued_image_txtDescription=0x7f050050;
         public static final int queued_image_txtDoctorId=0x7f05004c;
-        public static final int queued_image_txtTakenAt=0x7f050050;
+        public static final int queued_image_txtTakenAt=0x7f05004f;
         public static final int queued_order_btnDiscardOrder=0x7f050055;
         public static final int queued_order_btnPlaceOrder=0x7f050056;
         public static final int queued_order_list_listQueuedOrder=0x7f050057;
@@ -1173,9 +1173,13 @@ containing a value of this type.
         public static final int successful_queue_imgSuccess=0x7f05005b;
         public static final int successful_queue_txtSuccess=0x7f05005c;
         public static final int tabMode=0x7f050002;
-        public static final int take_picture_btnDiscard=0x7f050060;
-        public static final int take_picture_btnStore=0x7f05005f;
-        public static final int take_picture_imgPreview=0x7f05005e;
+        public static final int take_picture_btnDiscard=0x7f050062;
+        public static final int take_picture_btnStore=0x7f050063;
+        public static final int take_picture_edtDescription=0x7f050064;
+        public static final int take_picture_imgPreview=0x7f050060;
+        public static final int take_picture_layoutTop=0x7f05005e;
+        public static final int take_picture_spnrDoctorId=0x7f05005f;
+        public static final int take_picture_txtDescription=0x7f050061;
         public static final int title=0x7f05002b;
         public static final int top_action_bar=0x7f050020;
         public static final int up=0x7f050021;
