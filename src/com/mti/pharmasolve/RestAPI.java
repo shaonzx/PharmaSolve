@@ -202,6 +202,24 @@ public class RestAPI {
         return result;
     }
 
+    public JSONObject InsertImages(String userId,String doctorId,String description,String takenAt,String image) throws Exception {
+        JSONObject result = null;
+        JSONObject o = new JSONObject();
+        JSONObject p = new JSONObject();
+        o.put("interface","RestAPI");
+        o.put("method", "InsertImages");
+        p.put("userId",mapObject(userId));
+        p.put("doctorId",mapObject(doctorId));
+        p.put("description",mapObject(description));
+        p.put("takenAt",mapObject(takenAt));
+        p.put("image",mapObject(image));
+        o.put("parameters", p);
+        String s = o.toString();
+        String r = load(s);
+        result = new JSONObject(r);
+        return result;
+    }
+
 }
 
 
