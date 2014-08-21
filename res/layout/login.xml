@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:background="@android:color/darker_gray" >
 
     <EditText
         android:id="@+id/login_edtUserId"
@@ -25,7 +26,8 @@
         android:layout_marginLeft="16dp"
         android:layout_marginTop="102dp"
         android:text="User Id"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@android:color/black" />
 
     <TextView
         android:id="@+id/login_txtPassword"
@@ -35,7 +37,8 @@
         android:layout_below="@+id/login_edtUserId"
         android:layout_marginTop="19dp"
         android:text="Password"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@android:color/black" />
 
     <EditText
         android:id="@+id/login_edtPassword"
@@ -54,6 +57,7 @@
         android:layout_below="@+id/login_edtPassword"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="48dp"
-        android:text="Login" />
+        android:text="Login"
+        android:textColor="@android:color/black" />
 
 </RelativeLayout>

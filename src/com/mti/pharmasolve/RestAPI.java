@@ -21,7 +21,7 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 
 public class RestAPI {
-    private final String urlString = "http://masttechsoft.com/Handler.ashx";
+    private final String urlString = "http://shaonzx.somee.com/Handler.ashx";
 
     private static String convertStreamToUTF8String(InputStream stream) throws IOException {
 	    String result = "";

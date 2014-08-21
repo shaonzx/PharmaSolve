@@ -34,7 +34,9 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.widget.SlidingPaneLayout.LayoutParams;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -62,7 +64,9 @@ public class ProductList extends Activity {
 	
 	static String USER_ID;
 
-	private double grandTotal;
+	double grandTotal;
+	TextView txtGrandTotal;
+	double [] itemWiseSalesPriceTotal;
 
 	List<Products> productList;
 	List<String> customerIdList;
@@ -79,9 +83,15 @@ public class ProductList extends Activity {
 		ex = new EditText[productList.size()];
 		cx = new CheckBox[productList.size()];
 		// txtGrandTotal.setText("Grand Total: BDT 0");
+		
+		itemWiseSalesPriceTotal = new double[productList.size()];
 	}
 
 	private void InitializeBefore() {
+		
+		grandTotal = 0;
+		
+		txtGrandTotal = (TextView) findViewById(R.id.product_list_txtGrandTOtal);
 		
 		SessionManager session = new SessionManager(getApplicationContext());
 		USER_ID = session.GetUserIdFromSharedPreferences();		
@@ -291,10 +301,52 @@ public class ProductList extends Activity {
 							quantity = Double.parseDouble(strQuantity);
 
 						}
-						// grandTotal = grandTotal +
-						// (productList.get(K).GetSalesPrice() * quantity);
-						// txtGrandTotal.setText("Grand Total: " + grandTotal);
-						//System.out.println("Grand Total" + grandTotal);
+						
+						ex[K].addTextChangedListener(new TextWatcher() {
+							
+							double tempTotal = 0;
+							
+							@Override
+							public void onTextChanged(CharSequence s, int start, int before, int count) {
+								// TODO Auto-generated method stub						
+								
+								try{
+									
+									itemWiseSalesPriceTotal[K] = (productList.get(K).GetSalesPrice() * Integer.parseInt(ex[K].getText().toString()));
+								}
+								catch(NumberFormatException e)
+								{
+									itemWiseSalesPriceTotal[K] = 0;
+								}
+								finally
+								{
+									grandTotal = 0;
+									
+									for (double iSalesPrice : itemWiseSalesPriceTotal) {
+										
+										grandTotal = grandTotal + iSalesPrice;
+									}
+									txtGrandTotal.setText("The grand total is " + grandTotal);
+								}
+								
+							}
+							
+							@Override
+							public void beforeTextChanged(CharSequence s, int start, int count,
+									int after) {
+								// TODO Auto-generated method stub
+								
+							}
+							
+							@Override
+							public void afterTextChanged(Editable s) {
+								// TODO Auto-generated method stub
+								//tempTotal = grandTotal;
+								txtGrandTotal.setText("The grand total is " + (grandTotal+tempTotal));
+							}
+						});
+						
+
 					} else {
 						// Toast.makeText(ProductList.this,
 						// "This is Not Checked", Toast.LENGTH_SHORT).show();
