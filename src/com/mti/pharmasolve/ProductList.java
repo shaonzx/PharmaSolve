@@ -72,7 +72,7 @@ public class ProductList extends Activity {
 	List<String> customerIdList;
 	private ProgressDialog aProgressDialog;
 	private AlertDialog dlgAlert;
-	private static final String PRODUCTS_URL = "http://pharmasolve.apiary-mock.com/Products";
+	
 
 	DatabaseHelper db;
 
@@ -290,21 +290,11 @@ public class ProductList extends Activity {
 						ex[K].setClickable(true);
 						ex[K].requestFocus();
 
-						String strQuantity = ex[K].getText().toString();
-						double quantity;
 
-						if (strQuantity == null || strQuantity.isEmpty()) {
-
-							quantity = 0.0;
-
-						} else {
-							quantity = Double.parseDouble(strQuantity);
-
-						}
 						
 						ex[K].addTextChangedListener(new TextWatcher() {
 							
-							double tempTotal = 0;
+							
 							
 							@Override
 							public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -342,7 +332,7 @@ public class ProductList extends Activity {
 							public void afterTextChanged(Editable s) {
 								// TODO Auto-generated method stub
 								//tempTotal = grandTotal;
-								txtGrandTotal.setText("The grand total is " + (grandTotal+tempTotal));
+								//txtGrandTotal.setText("The grand total is " + (grandTotal+tempTotal));
 							}
 						});
 						

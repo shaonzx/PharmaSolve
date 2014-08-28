@@ -220,6 +220,36 @@ public class RestAPI {
         return result;
     }
 
+    public JSONObject ReportinDateRange(String userId,String dateFrom,String dateTo) throws Exception {
+        JSONObject result = null;
+        JSONObject o = new JSONObject();
+        JSONObject p = new JSONObject();
+        o.put("interface","RestAPI");
+        o.put("method", "ReportinDateRange");
+        p.put("userId",mapObject(userId));
+        p.put("dateFrom",mapObject(dateFrom));
+        p.put("dateTo",mapObject(dateTo));
+        o.put("parameters", p);
+        String s = o.toString();
+        String r = load(s);
+        result = new JSONObject(r);
+        return result;
+    }
+
+    public JSONObject ReportOfTheMonth(String userId) throws Exception {
+        JSONObject result = null;
+        JSONObject o = new JSONObject();
+        JSONObject p = new JSONObject();
+        o.put("interface","RestAPI");
+        o.put("method", "ReportOfTheMonth");
+        p.put("userId",mapObject(userId));
+        o.put("parameters", p);
+        String s = o.toString();
+        String r = load(s);
+        result = new JSONObject(r);
+        return result;
+    }
+
 }
 
 

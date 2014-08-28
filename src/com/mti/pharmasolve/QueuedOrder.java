@@ -16,15 +16,20 @@ import com.mti.pharmasolve.adapters.DatabaseHelper;
 import com.mti.pharmasolve.model.Products_DB;
 import com.mti.pharmasolve.session.SessionManager;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.widget.SlidingPaneLayout.LayoutParams;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -51,7 +56,11 @@ public class QueuedOrder extends Activity {
 	ProgressDialog aProgressDialog;
 
 	Button btnPlaceOrder;
-	Button btnDiscardorder;
+	Button btnDiscardOrder;
+	
+	TextView txtGrandTotal;
+	double [] itemWiseSalesPriceTotal;
+	double grandTotal;
 	
 	
 	//List<Products> productList;
@@ -63,12 +72,13 @@ public class QueuedOrder extends Activity {
 		
 		customerId = getIntent().getExtras().getString("putId");
 		txtCustomerId = (TextView) findViewById(R.id.queued_order_txtCustomerId);
+		txtGrandTotal = (TextView) findViewById(R.id.queued_order_txtGrandTotal);
 		txtCustomerId.setText("Customer Id: " + customerId);
 		
 		db = new DatabaseHelper(getApplicationContext());
 		productsList = db.GetProducts(customerId);
 		
-		btnDiscardorder = (Button) findViewById(R.id.queued_order_btnDiscardOrder);
+		btnDiscardOrder = (Button) findViewById(R.id.queued_order_btnDiscard);
 		btnPlaceOrder = (Button) findViewById(R.id.queued_order_btnPlaceOrder);
 
 		ll = (LinearLayout) findViewById(R.id.queued_order_mylinear);
@@ -77,7 +87,9 @@ public class QueuedOrder extends Activity {
 		ex = new EditText[productsList.size()];
 		cx = new CheckBox[productsList.size()];
 		
+		grandTotal = 0;
 		
+		itemWiseSalesPriceTotal = new double[productsList.size()];
 	}
 
 	@Override
@@ -89,7 +101,7 @@ public class QueuedOrder extends Activity {
 		InitializeComponant();
 		PopulateView();
 		
-		btnDiscardorder.setOnClickListener(new OnClickListener() {
+		btnDiscardOrder.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -143,15 +155,23 @@ public class QueuedOrder extends Activity {
 		});
 
 	}
+	
+private void PopulateView() {
 
-	private void PopulateView() {
-		int size = productsList.size();
+
+	int size = productsList.size();
 
 		boolean setcolor = true;
+		
+		//double[] itemWiseSalesPriceTotalOnCreate = new double[productsList.size()];
+		double totalOnCreate = 0;
 
 		for (int i = 0; i < size; i++) {
+			
+			
 
 			llx[i] = new LinearLayout(this);
+			//System.out.println("Size: " + size);
 			tx[i] = new TextView(this);
 			ex[i] = new EditText(this);
 			cx[i] = new CheckBox(this);
@@ -160,24 +180,18 @@ public class QueuedOrder extends Activity {
 					LayoutParams.WRAP_CONTENT, 0.2f));
 			cx[i].setChecked(true);
 			llx[i].addView(cx[i]);
-
 			tx[i].setLayoutParams(new LinearLayout.LayoutParams(0,
 					LayoutParams.WRAP_CONTENT, 0.6f));
 			tx[i].setTextSize(20);
 			tx[i].setTextColor(0xff000000);
-			tx[i].setText(productsList.get(i).GetProductName());
-			llx[i].addView(tx[i]);
-
 			ex[i].setLayoutParams(new LinearLayout.LayoutParams(0,
 					LayoutParams.WRAP_CONTENT, 0.2f));
 			ex[i].setEnabled(true);
 			ex[i].setClickable(true);
+			tx[i].setText(productsList.get(i).GetProductName());
 			ex[i].setInputType(InputType.TYPE_CLASS_NUMBER);
 			ex[i].setText(String.valueOf(productsList.get(i)
 					.GetProductQuantity()));
-			ex[i].setSelectAllOnFocus(true);
-			llx[i].addView(ex[i]);
-
 			llx[i].setId(i);
 			llx[i].setClickable(true);
 
@@ -193,11 +207,58 @@ public class QueuedOrder extends Activity {
 				setcolor = true;
 			}
 
-			ll.addView(llx[i]);
-
 			final int K = i;
+			
+			
+			ex[K].addTextChangedListener(new TextWatcher() {
+				
+				
+				
+				@Override
+				public void onTextChanged(CharSequence s, int start, int before, int count) {
+					// TODO Auto-generated method stub						
+					
+					try{
+						
+						itemWiseSalesPriceTotal[K] = (productsList.get(K).GetSalesPrice() * Integer.parseInt(ex[K].getText().toString()));
+					}
+					catch(NumberFormatException e)
+					{
+						itemWiseSalesPriceTotal[K] = 0;
+					}
+					finally
+					{
+						grandTotal = 0;
+						
+						for (double iSalesPrice : itemWiseSalesPriceTotal) {
+							
+							grandTotal = grandTotal + iSalesPrice;
+						}
+						txtGrandTotal.setText("The grand total is " + grandTotal);
+					}
+					
+				}
+				
+				@Override
+				public void beforeTextChanged(CharSequence s, int start, int count,
+						int after) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void afterTextChanged(Editable s) {
+					// TODO Auto-generated method stub
+					//tempTotal = grandTotal;
+					//txtGrandTotal.setText("The grand total is " + (grandTotal+tempTotal));
+				}
+			});
+			
+			
+
 			cx[K].setOnClickListener(new OnClickListener() {
 
+				@TargetApi(Build.VERSION_CODES.GINGERBREAD)
 				@Override
 				public void onClick(View v) {
 					// TODO Auto-generated method stub
@@ -208,12 +269,8 @@ public class QueuedOrder extends Activity {
 
 						ex[K].setEnabled(true);
 						ex[K].setClickable(true);
-						ex[K].requestFocus();
+						ex[K].requestFocus();						
 
-						// grandTotal = grandTotal +
-						// (productList.get(K).GetSalesPrice() * quantity);
-						// txtGrandTotal.setText("Grand Total: " + grandTotal);
-						// System.out.println("Grand Total" + grandTotal);
 					} else {
 						// Toast.makeText(ProductList.this,
 						// "This is Not Checked", Toast.LENGTH_SHORT).show();
@@ -226,8 +283,45 @@ public class QueuedOrder extends Activity {
 				}
 			});
 
+			final int j = i;
+			llx[i].setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					msg(tx[j].getText().toString());
+				}
+			});
+
+			llx[i].addView(tx[i]);
+			llx[i].addView(ex[i]);
+
+			ll.addView(llx[i]);
+			
+			itemWiseSalesPriceTotal[i] = Integer.parseInt(ex[i].getText().toString()) * productsList.get(i).GetSalesPrice();
+			
+			totalOnCreate = totalOnCreate + itemWiseSalesPriceTotal[i];
+			
+			
 		}
+
+		/***************** Display grand total on Create ********************/
+		
+		txtGrandTotal.setText("The grand total is " + totalOnCreate);
+
+/*		for (double i : itemWiseSalesPriceTotalOnCreate) {
+			totalOnCreate = totalOnCreate + i;
+		}
+
+		txtGrandTotal.setText("The grand total is " + totalOnCreate);*/
 	}
+
+
+	
+	private void msg(String x) {
+		Toast.makeText(this, x, Toast.LENGTH_SHORT).show();
+	}
+
 
 class OrderNumber extends AsyncTask<Void, Void, String>{
 		

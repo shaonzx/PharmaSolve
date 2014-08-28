@@ -31,6 +31,7 @@ public class Dashboard extends Activity {
 	Button btnTakePicture;
 	Button btnQueuedPicture;
 	Button btnLogOut;
+	Button btnReports;
 	
 	
 	LocationManager aLocationManager;
@@ -44,6 +45,7 @@ public class Dashboard extends Activity {
 		btnQueueOrder = (Button) findViewById(R.id.dashboard_btnQueuedOrder);
 		btnQueuedPicture = (Button) findViewById(R.id.dashboard_btnQueuedPicture);
 		btnLogOut = (Button) findViewById(R.id.dashboard_btnLogOut);
+		btnReports = (Button) findViewById(R.id.dashboard_btnReports);
 		
 	}
 
@@ -180,6 +182,15 @@ public class Dashboard extends Activity {
 			}
 		});
 		
+		btnReports.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Intent startReports = new Intent(Dashboard.this, Reports.class);
+				startActivity(startReports);
+			}
+		});
 	}	
 	
 	
